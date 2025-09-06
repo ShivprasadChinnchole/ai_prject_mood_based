@@ -1,4 +1,3 @@
-cd "C:\Users\ASUS\OneDrive\Desktop\2.0 india ai\task 2\AI MOOD JOURNAL\REALTIME-CHAT\nextjs-app"
 import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
 

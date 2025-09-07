@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'TextStream Template',
-  description: 'A template for building text streaming applications',
+  title: 'AI-MOODJOURNAL-SHIV',
+  description: 'AI-powered mood journal for mental wellness and emotional tracking',
 }
 
 export default function RootLayout({

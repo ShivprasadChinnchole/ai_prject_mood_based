@@ -1,27 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Groq from 'groq-sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY
-})
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
-async function callGroq(prompt: string): Promise<string> {
+async function callGemini(prompt: string): Promise<string> {
   try {
-    const completion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      model: "llama-3.1-8b-instant", // Fast and efficient model
-      temperature: 0.7,
-      max_tokens: 1228, // Increased by 20% (1024 * 1.2)
-    })
-
-    return completion.choices[0]?.message?.content?.trim() || ''
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
+    
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    const text = response.text()
+    
+    return text.trim() || ''
   } catch (error) {
-    console.error('Groq API call failed:', error)
+    console.error('Gemini API call failed:', error)
     throw error
   }
 }
@@ -40,11 +32,11 @@ export async function POST(req: NextRequest) {
     let prompt = '';
     
     if (context === 'wellness') {
-      prompt = `You are a compassionate AI wellness assistant. Provide supportive, encouraging responses about mental health and wellbeing. Keep responses warm and under 180 words. // Increased by 20% (150 * 1.2)
+      prompt = `Hi there, I'm here to listen and support you with whatever you're going through. I want you to know that reaching out shows real strength and self-awareness. 🌟
 
-User: ${message}
+What you shared: ${message}
 
-Response:`;
+I'm not going to respond like a textbook or give you clinical advice. Instead, I want to offer you some gentle, caring words that come from a place of genuine understanding and compassion. Please respond naturally, warmly, and personally - like you're talking to someone who truly cares about your wellbeing. Keep it under 180 words and make it feel human and heartfelt. Feel free to use gentle emojis like 💙, ✨, 🌟, 🤗, 🌱, or 💫 to add warmth and connection.`;
     } else {
       prompt = `You are a helpful AI assistant. Provide a clear, informative response.
 
@@ -53,7 +45,7 @@ User: ${message}
 Response:`;
     }
 
-    const response = await callGroq(prompt);
+    const response = await callGemini(prompt);
 
     return NextResponse.json({
       message: response || 'I\'m here to help with any questions you have.',

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { Send, Brain, TrendingUp, Heart, Calendar, BarChart3, Lightbulb, Save, MessageCircle, Target } from 'lucide-react'
 
 interface MoodEntry {
@@ -9,7 +8,6 @@ interface MoodEntry {
   date: string
   entry: string
   isIncident?: boolean
-  responseRole?: 'mom' | 'dad' | 'brother' | 'close_friend' | 'lover' | 'counselor' | 'supportive_friend'
   aiSentiment: {
     emotions: string[]
     dominantEmotion: string
@@ -56,7 +54,6 @@ export default function Home() {
   const [currentView, setCurrentView] = useState<'journal' | 'insights' | 'trends'>('journal')
   const [trendData, setTrendData] = useState<TrendData | null>(null)
   const [incidentMode, setIncidentMode] = useState(false)
-  const [responseRole, setResponseRole] = useState<'mom' | 'dad' | 'brother' | 'close_friend' | 'lover' | 'counselor' | 'supportive_friend'>('close_friend')
   const [typedText, setTypedText] = useState('')
   const [showCursor, setShowCursor] = useState(true)
 
@@ -187,7 +184,6 @@ export default function Home() {
       date: now.toISOString().split('T')[0],
       entry: journalEntry,
       isIncident: incidentMode,
-      responseRole: responseRole,
       aiSentiment: {
         emotions: [],
         dominantEmotion: '',
@@ -209,8 +205,7 @@ export default function Home() {
         body: JSON.stringify({ 
           entry: journalEntry,
           previousEntries: moodEntries.slice(-5), // Last 5 entries for context
-          isIncident: incidentMode,
-          responseRole: responseRole
+          isIncident: incidentMode
         }),
       })
 
@@ -253,26 +248,49 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col">
-        {/* Header */}
-        <div className="text-center text-slate-800 mb-6 flex-shrink-0">
-          <div className="flex justify-center items-center mb-4">
-            <h1 className="text-5xl italic text-slate-900 font-bold tracking-tight text-center drop-shadow-lg" style={{ fontFamily: 'Dancing Script, Brush Script MT, cursive', letterSpacing: '0.02em', textShadow: '2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)' }}>
-              .                   .
-            </h1>
-          </div>
-          <p className="text-xl font-semibold text-black mb-4" style={{textShadow: '1px 1px 2px rgba(255,255,255,0.8)'}}>Track your emotions, discover patterns, and get AI insights</p>
-          
-          {/* Inspirational Quote */}
-          <div className="max-w-2xl mx-auto p-4 rounded-lg mb-4">
-            <div className="flex items-center justify-center mb-2">
-              <p className="text-lg italic text-slate-900 font-bold text-center drop-shadow-lg" style={{textShadow: '2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)'}}>
-                "<span className="inline-block">{typedText}</span>{showCursor && <span className="animate-pulse">|</span>}"
+        {/* Modern Professional Header */}
+        <div className="text-center mb-8 flex-shrink-0">
+          {/* Logo/Brand Section */}
+          <div className="flex justify-center items-center mb-6">
+            <div className="relative">
+              {/* Modern Logo Icon */}
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg mr-4">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <div className="text-left">
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 bg-clip-text text-transparent">
+                MoodJournal
+              </h1>
+              <p className="text-sm font-medium text-slate-600 uppercase tracking-wider">
+                AI-Powered Wellness
               </p>
             </div>
-            <p className="text-sm text-slate-800 font-semibold text-center" style={{textShadow: '1px 1px 2px rgba(255,255,255,0.8)'}}>- William James, Psychologist</p>
-            <p className="text-sm text-slate-700 font-medium mt-1 text-center" style={{textShadow: '1px 1px 2px rgba(255,255,255,0.8)'}}>Your emotional wellness journey starts here</p>
+          </div>
+          
+          {/* Professional Tagline */}
+          <div className="max-w-2xl mx-auto mb-6">
+            <p className="text-lg text-slate-700 font-medium">
+              Transform your emotional wellness with AI-driven insights and personalized guidance
+            </p>
+          </div>
+          
+          {/* Modern Inspirational Quote Card */}
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/20 shadow-xl p-6">
+              <div className="flex items-center justify-center mb-3">
+                <div className="w-1 h-12 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full mr-4"></div>
+                <p className="text-lg italic text-slate-800 font-medium text-center leading-relaxed">
+                  "<span className="inline-block">{typedText}</span>{showCursor && <span className="animate-pulse text-blue-600">|</span>}"
+                </p>
+              </div>
+              <div className="text-center space-y-1">
+                <p className="text-sm font-semibold text-slate-600">William James, Psychologist</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">Begin Your Journey Today</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -350,104 +368,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Role Selection */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-4 border border-blue-200">
-                      <h4 className="text-slate-800 font-semibold mb-3 flex items-center">
-                        💭 Choose who you want support from:
-                      </h4>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        <button
-                          onClick={() => setResponseRole('mom')}
-                          className={`p-3 rounded-lg text-left transition-all ${
-                            responseRole === 'mom'
-                              ? 'bg-pink-500 text-white shadow-lg transform scale-105'
-                              : 'bg-white/70 text-slate-700 hover:bg-pink-100 border border-pink-200'
-                          }`}
-                        >
-                          <div className="text-lg mb-1">👩 Mom</div>
-                          <div className="text-xs opacity-80">Loving & nurturing</div>
-                        </button>
-                        
-                        <button
-                          onClick={() => setResponseRole('dad')}
-                          className={`p-3 rounded-lg text-left transition-all ${
-                            responseRole === 'dad'
-                              ? 'bg-blue-500 text-white shadow-lg transform scale-105'
-                              : 'bg-white/70 text-slate-700 hover:bg-blue-100 border border-blue-200'
-                          }`}
-                        >
-                          <div className="text-lg mb-1">👨 Dad</div>
-                          <div className="text-xs opacity-80">Encouraging & wise</div>
-                        </button>
-                        
-                        <button
-                          onClick={() => setResponseRole('brother')}
-                          className={`p-3 rounded-lg text-left transition-all ${
-                            responseRole === 'brother'
-                              ? 'bg-green-500 text-white shadow-lg transform scale-105'
-                              : 'bg-white/70 text-slate-700 hover:bg-green-100 border border-green-200'
-                          }`}
-                        >
-                          <div className="text-lg mb-1">👫 Sibling</div>
-                          <div className="text-xs opacity-80">Real talk & loyal</div>
-                        </button>
-                        
-                        <button
-                          onClick={() => setResponseRole('close_friend')}
-                          className={`p-3 rounded-lg text-left transition-all ${
-                            responseRole === 'close_friend'
-                              ? 'bg-yellow-500 text-white shadow-lg transform scale-105'
-                              : 'bg-white/70 text-slate-700 hover:bg-yellow-100 border border-yellow-200'
-                          }`}
-                        >
-                          <div className="text-lg mb-1">👥 Best Friend</div>
-                          <div className="text-xs opacity-80">Super supportive</div>
-                        </button>
-                        
-                        <button
-                          onClick={() => setResponseRole('lover')}
-                          className={`p-3 rounded-lg text-left transition-all ${
-                            responseRole === 'lover'
-                              ? 'bg-red-500 text-white shadow-lg transform scale-105'
-                              : 'bg-white/70 text-slate-700 hover:bg-red-100 border border-red-200'
-                          }`}
-                        >
-                          <div className="text-lg mb-1">💕 Partner</div>
-                          <div className="text-xs opacity-80">Romantic & tender</div>
-                        </button>
-                        
-                        <button
-                          onClick={() => setResponseRole('counselor')}
-                          className={`p-3 rounded-lg text-left transition-all ${
-                            responseRole === 'counselor'
-                              ? 'bg-purple-500 text-white shadow-lg transform scale-105'
-                              : 'bg-white/70 text-slate-700 hover:bg-purple-100 border border-purple-200'
-                          }`}
-                        >
-                          <div className="text-lg mb-1">🧠 Counselor</div>
-                          <div className="text-xs opacity-80">Professional & helpful</div>
-                        </button>
-                        
-                        <button
-                          onClick={() => setResponseRole('supportive_friend')}
-                          className={`p-3 rounded-lg text-left transition-all ${
-                            responseRole === 'supportive_friend'
-                              ? 'bg-teal-500 text-white shadow-lg transform scale-105'
-                              : 'bg-white/70 text-slate-700 hover:bg-teal-100 border border-teal-200'
-                          }`}
-                        >
-                          <div className="text-lg mb-1">🤝 Support Friend</div>
-                          <div className="text-xs opacity-80">Balanced & wise</div>
-                        </button>
-                      </div>
-                      
-                      <div className="mt-3 text-center">
-                        <span className="text-sm text-slate-600 bg-white/60 px-3 py-1 rounded-full">
-                          Selected: <span className="font-semibold capitalize">{responseRole.replace('_', ' ')}</span>
-                        </span>
-                      </div>
-                    </div>
-
                     {/* Journal Entry */}
                     <div>
                       <h4 className="text-slate-700 font-semibold mb-3">
@@ -509,17 +429,6 @@ export default function Home() {
                             {entry.isIncident && (
                               <div className="inline-block ml-2 px-2 py-1 rounded text-xs text-white bg-red-600 font-semibold">
                                 🚨 Incident Report
-                              </div>
-                            )}
-                            {entry.responseRole && (
-                              <div className="inline-block ml-2 px-2 py-1 rounded text-xs text-white bg-gradient-to-r from-purple-500 to-pink-500 font-semibold">
-                                💭 {entry.responseRole === 'mom' ? '👩 Mom' : 
-                                     entry.responseRole === 'dad' ? '👨 Dad' : 
-                                     entry.responseRole === 'brother' ? '👫 Sibling' : 
-                                     entry.responseRole === 'close_friend' ? '👥 Best Friend' : 
-                                     entry.responseRole === 'lover' ? '💕 Partner' : 
-                                     entry.responseRole === 'counselor' ? '� Counselor' :
-                                     '🤝 Support Friend'} Support
                               </div>
                             )}
                           </div>

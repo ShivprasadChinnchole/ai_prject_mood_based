@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { GoogleGenerativeAI } from '@google/generative-ai'
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
 const languagePatterns: { [key: string]: RegExp[] } = {
   'es': [/\b(hola|gracias|por favor|lo siento|buenas|días|noches)\b/i],
@@ -14,29 +17,18 @@ const languagePatterns: { [key: string]: RegExp[] } = {
   'ar': [/\b(مرحبا|شكرا|من فضلك|آسف|صباح|مساء)\b/i],
 }
 
-async function callOllama(prompt: string): Promise<string> {
+async function callGemini(prompt: string): Promise<string> {
   try {
-    const response = await fetch('http://localhost:11434/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama2',
-        prompt: prompt,
-        stream: false,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.response?.trim() || '';
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
+    
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    const text = response.text()
+    
+    return text.trim() || ''
   } catch (error) {
-    console.error('Ollama call failed:', error);
-    return '';
+    console.error('Gemini API call failed:', error)
+    throw error
   }
 }
 
@@ -77,7 +69,7 @@ Text: "${text}"
 Language code:`;
 
     try {
-      const aiDetected = await callOllama(detectPrompt);
+      const aiDetected = await callGemini(detectPrompt);
       const detectedLang = aiDetected.toLowerCase().replace(/[^a-z]/g, '').substring(0, 2);
       
       // Validate the detected language code
